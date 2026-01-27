@@ -1,0 +1,467 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Padel Matcher — Ad‑free & Offline</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark light">
+  <style>
+    :root{
+      --bg:#0f1420; --panel:#151c2c; --ink:#e8eefb; --muted:#a8b3c7;
+      --accent:#4cc2ff; --accent2:#6fff93; --danger:#ff6b6b; --warn:#ffd166;
+      --line:#223049; --pill:#0e1930;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial;
+      background:linear-gradient(180deg,#0b1020,#0f1420 30%,#0b1020); color:var(--ink);
+    }
+    header{
+      padding:14px 16px; border-bottom:1px solid var(--line);
+      position:sticky; top:0; backdrop-filter: blur(6px);
+      background:linear-gradient(180deg,rgba(21,28,44,.92),rgba(21,28,44,.6));
+      display:flex; align-items:center; gap:12px; z-index:5;
+    }
+    header h1{font-size:18px;margin:0}
+    header small{color:var(--muted)}
+    .spacer{flex:1}
+    main{max-width:1200px;margin:16px auto 80px;padding:0 16px}
+    .grid{display:grid; gap:16px}
+    @media(min-width:1020px){ .grid-2{grid-template-columns: 420px 1fr} }
+    section.panel{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:14px}
+    h2{margin:.2rem 0 10px;font-size:16px}
+    .muted{color:var(--muted); font-size:13px}
+    .hr{height:1px;background:var(--line);margin:10px 0}
+    label{display:block; font-size:13px; color:var(--muted); margin:8px 0 6px}
+    input[type=text], input[type=number], select{
+      width:100%; padding:10px 12px; border-radius:10px; border:1px solid var(--line);
+      background:#0c1422; color:var(--ink);
+    }
+    .row{display:flex; gap:8px; align-items:center; flex-wrap:wrap}
+    .pill{display:inline-flex; align-items:center; gap:8px; padding:8px 10px; background:var(--pill);
+      border:1px solid var(--line); border-radius:999px; color:var(--ink)}
+    .tag{background:#10203a;border:1px solid var(--line);padding:4px 8px;border-radius:999px;font-size:12px;color:var(--muted)}
+    button{
+      background:#192744; color:var(--ink); border:1px solid var(--line);
+      border-radius:10px; padding:10px 12px; cursor:pointer; font-weight:600;
+    }
+    button.primary{ background:linear-gradient(180deg,var(--accent),#2fa7ff); color:#001120; border:0 }
+    button.ghost{ background:transparent }
+    button.warn{ background:var(--warn); color:#222; border:0 }
+    button.danger{ background:var(--danger); color:#fff; border:0 }
+    ul.clean{list-style:none; padding:0; margin:0}
+    .team-pill{display:inline-flex; align-items:center; gap:8px; padding:8px 10px; background:var(--pill);
+      border:1px solid var(--line); border-radius:999px; margin:4px}
+    .team-pill button{padding:6px 8px}
+    table{width:100%; border-collapse:collapse}
+    th,td{border-bottom:1px solid var(--line); padding:8px 6px; font-size:14px; text-align:left}
+    th{color:var(--muted)}
+    td input[type=number]{width:70px; padding:6px 8px; border-radius:8px; border:1px solid var(--line); background:#0c1422; color:#fff}
+    .small{font-size:12px; color:var(--muted)}
+    .badgel{padding:2px 6px;border-radius:6px;background:#11203a;border:1px solid var(--line);font-size:12px;color:var(--muted)}
+    .foot{position:fixed;left:0;right:0;bottom:0;background:linear-gradient(180deg,rgba(14,19,33,.1),rgba(14,19,33,.85) 25%);
+      backdrop-filter:blur(6px); border-top:1px solid var(--line); padding:10px 16px; display:flex; align-items:center; gap:8px; justify-content:center}
+    .ok{color:var(--accent2)} .warntext{color:var(--warn)} .err{color:var(--danger)} .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;}
+    /* Light mode tweak */
+    @media (prefers-color-scheme: light){
+      :root{ --ink:#0f1420; --bg:#f5f7fb; --panel:#ffffff; --muted:#5d6b82; --line:#e2e8f0; --pill:#f3f6fb; }
+      body{ background:#f3f6fc; color:#0f1420; }
+      td input[type=number]{background:#fff; color:#0f1420; border-color:#cfd8e3}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Padel Matcher</h1>
+    <small>Input → Courts/Time → Schedule → Score → Leaderboard</small>
+    <span class="spacer"></span>
+    <button id="exportBtn">Export JSON</button>
+    <label for="importFile" class="pill" style="cursor:pointer">
+      <span class="mono">Import JSON</span>
+      <input id="importFile" type="file" accept="application/json" style="display:none">
+    </label>
+    <button class="ghost" id="resetBtn">Reset</button>
+  </header>
+
+  <main class="grid grid-2">
+    <!-- SETUP -->
+    <section class="panel">
+      <h2>Setup</h2>
+      <div class="muted">Add players, set courts & time, pick Singles or Doubles, then generate.</div>
+      <div class="hr"></div>
+
+      <label>Players</label>
+      <div id="playerList"></div>
+      <div class="row" style="margin-top:8px">
+        <input id="playerInput" type="text" placeholder="Type name and press Enter; comma‑separated to add many" />
+        <button id="addPlayerBtn">Add</button>
+      </div>
+
+      <div class="hr"></div>
+      <label>Match Options</label>
+      <div class="row">
+        <div style="flex:1;min-width:120px">
+          <div class="small">Mode</div>
+          <div class="row">
+            <label class="pill"><input type="radio" name="mode" value="singles"> Singles</label>
+            <label class="pill"><input type="radio" name="mode" value="doubles" checked> Doubles</label>
+          </div>
+        </div>
+        <div style="flex:1;min-width:120px">
+          <div class="small">Courts</div>
+          <input id="courts" type="number" min="1" value="2">
+        </div>
+        <div style="flex:1;min-width:120px">
+          <div class="small">Game duration (minutes)</div>
+          <input id="gameMins" type="number" min="5" step="1" value="10">
+        </div>
+        <div style="flex:1;min-width:140px">
+          <div class="small">Session length (minutes)</div>
+          <input id="sessionMins" type="number" min="10" step="5" value="120">
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:8px">
+        <div style="flex:1;min-width:160px">
+          <div class="small">Target total matches (optional)</div>
+          <input id="targetMatches" type="number" min="1" step="1" placeholder="e.g., 24">
+        </div>
+        <span class="spacer"></span>
+        <span class="tag">Capacity per round: auto‑calculated</span>
+      </div>
+
+      <div class="hr"></div>
+      <div class="row">
+        <button class="primary" id="genBtn">Generate Schedule</button>
+        <button id="clearBtn">Clear Schedule</button>
+        <span id="msg" class="small"></span>
+      </div>
+
+      <div class="hr"></div>
+      <div class="small">Tip: If players & courts don’t divide evenly, the app rotates <b>bench</b> time fairly.</div>
+    </section>
+
+    <!-- SCHEDULE & SCOREBOARD -->
+    <section class="panel">
+      <h2>Schedule & Scoreboard</h2>
+      <div id="scheduleEmpty" class="muted">No schedule yet. Click <b>Generate Schedule</b>.</div>
+      <div id="scheduleWrap"></div>
+    </section>
+
+    <!-- LEADERBOARD -->
+    <section class="panel">
+      <h2>Leaderboard</h2>
+      <div class="muted">Ranks by <b>Wins</b> → <b>Point Diff</b> → <b>Points For</b>. Updates as you enter scores.</div>
+      <div id="leaderboardWrap" style="margin-top:8px"></div>
+    </section>
+
+    <!-- MATCH LOG -->
+    <section class="panel">
+      <h2>Match Log</h2>
+      <div class="muted">All matches with final scores.</div>
+      <div id="logWrap" style="margin-top:8px"></div>
+    </section>
+  </main>
+
+  <div class="foot">
+    <span class="small">All data saved locally. Export anytime.</span>
+  </div>
+
+  <script>
+    /* ========= Persistence ========= */
+    const LSKEY = 'padel_matchgen_v1';
+    let S = load() || {
+      players: [],
+      settings: { mode:'doubles', courts:2, gameMins:10, sessionMins:120, targetMatches:'' },
+      rounds: [], // each round: [{id, round, court, teamA:[...], teamB:[...], scoreA:'', scoreB:'', done:false}]
+    };
+
+    function load(){ try{ return JSON.parse(localStorage.getItem(LSKEY)); }catch(e){ return null; } }
+    function save(){ localStorage.setItem(LSKEY, JSON.stringify(S)); }
+    function msg(text, cls='ok'){ const m=document.getElementById('msg'); m.textContent=text; m.className='small '+cls; if(text){ setTimeout(()=>m.textContent='',2500);} }
+
+    /* ========= UI Elements ========= */
+    const elPlayerList = document.getElementById('playerList');
+    const elPlayerInput = document.getElementById('playerInput');
+    const elAddPlayerBtn = document.getElementById('addPlayerBtn');
+    const elCourts = document.getElementById('courts');
+    const elGameMins = document.getElementById('gameMins');
+    const elSessionMins = document.getElementById('sessionMins');
+    const elTargetMatches = document.getElementById('targetMatches');
+    const elScheduleEmpty = document.getElementById('scheduleEmpty');
+    const elScheduleWrap = document.getElementById('scheduleWrap');
+    const elLeaderboardWrap = document.getElementById('leaderboardWrap');
+    const elLogWrap = document.getElementById('logWrap');
+
+    /* ========= Helpers ========= */
+    const uid = ()=> crypto.randomUUID ? crypto.randomUUID() : ('id-'+Math.random().toString(36).slice(2));
+    const escapeHtml = s => String(s).replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m]));
+    const clone = x => JSON.parse(JSON.stringify(x));
+
+    function renderPlayers(){
+      elPlayerList.innerHTML = '';
+      const wrap = document.createElement('div');
+      S.players.forEach((p,i)=>{
+        const pill = document.createElement('span');
+        pill.className='team-pill';
+        pill.innerHTML = `<span>${escapeHtml(p)}</span>
+          <button class="ghost" title="Rename">✎</button>
+          <button class="danger" title="Remove">×</button>`;
+        pill.querySelector('button.ghost').onclick = ()=>{
+          const nn = prompt('Rename', p);
+          if(nn && nn.trim()){ S.players[i]=nn.trim(); save(); renderPlayers(); }
+        };
+        pill.querySelector('button.danger').onclick = ()=>{
+          if(confirm('Remove '+p+'?')){ S.players.splice(i,1); save(); renderPlayers(); }
+        };
+        wrap.appendChild(pill);
+      });
+      elPlayerList.appendChild(wrap);
+    }
+
+    /* ========= Scheduling ========= */
+    function settingsFromUI(){
+      const mode = document.querySelector('input[name=mode]:checked')?.value || 'doubles';
+      const courts = Math.max(1, parseInt(elCourts.value||'1',10));
+      const gameMins = Math.max(5, parseInt(elGameMins.value||'10',10));
+      const sessionMins = Math.max(10, parseInt(elSessionMins.value||'60',10));
+      const targetMatches = elTargetMatches.value ? Math.max(1, parseInt(elTargetMatches.value,10)) : '';
+      S.settings = {mode, courts, gameMins, sessionMins, targetMatches};
+      save();
+    }
+
+    function calcRounds(){
+      const {courts, gameMins, sessionMins, targetMatches} = S.settings;
+      const byTime = Math.floor(sessionMins / gameMins);
+      if(targetMatches){
+        const byTarget = Math.ceil(targetMatches / courts);
+        return Math.min(Math.max(byTime,1), byTarget);
+      }
+      return Math.max(byTime, 1);
+    }
+
+    function rotate(arr, k){
+      const a = arr.slice();
+      const n = a.length; const s = ((k % n)+n)%n;
+      return a.slice(s).concat(a.slice(0,s));
+    }
+
+    function genSchedule(){
+      if(S.players.length < 2){ msg('Add at least 2 players', 'warntext'); return; }
+      settingsFromUI();
+      const { mode, courts } = S.settings;
+      const playersPerTeam = (mode==='singles') ? 1 : 2;
+      const playersPerCourt = playersPerTeam * 2;
+      const capacity = courts * playersPerCourt;
+
+      let roundsCount = calcRounds();
+      const queue = clone(S.players);
+
+      if(queue.length < playersPerCourt){
+        msg('Not enough players for the selected mode', 'err'); return;
+      }
+
+      const rounds = [];
+      let offset = 0;
+      for(let r=1; r<=roundsCount; r++){
+        const rot = rotate(queue, offset++);
+        const activeCount = Math.min(capacity, rot.length - (rot.length % playersPerTeam));
+        const active = rot.slice(0, activeCount);
+
+        const teams = [];
+        for(let i=0;i<active.length;i+=playersPerTeam){
+          teams.push(active.slice(i, i+playersPerTeam));
+        }
+
+        const matches = [];
+        for(let t=0; t+1<teams.length && matches.length < courts; t+=2){
+          matches.push({
+            id: uid(),
+            round: r,
+            court: matches.length+1,
+            teamA: teams[t],
+            teamB: teams[t+1],
+            scoreA:'', scoreB:'', done:false
+          });
+        }
+        rounds.push(matches);
+        queue.push(queue.shift()); // rotate for fairness
+      }
+      S.rounds = rounds;
+      save();
+      renderAll();
+      msg('Schedule generated ✅');
+    }
+
+    /* ========= Scoreboard & Leaderboard ========= */
+    function onScoreInput(e){
+      const id = e.target.getAttribute('data-id');
+      const side = e.target.getAttribute('data-side'); // A or B
+      for(const round of S.rounds){
+        for(const m of round){
+          if(m.id===id){
+            if(side==='A') m.scoreA = e.target.value;
+            else m.scoreB = e.target.value;
+            const a = parseInt(m.scoreA,10), b = parseInt(m.scoreB,10);
+            m.done = Number.isInteger(a)&&Number.isInteger(b)&&a>=0&&b>=0&&m.scoreA!==''&&m.scoreB!=='';
+            save(); renderLeaderboard(); renderLog();
+            return;
+          }
+        }
+      }
+    }
+
+    function computeLeaderboard(){
+      const stats = {}; // player -> {P,W,L,PF,PA,PD,WinP}
+      S.players.forEach(p=> stats[p] = {Player:p,P:0,W:0,L:0,PF:0,PA:0,PD:0,WinP:0});
+      for(const round of S.rounds){
+        for(const m of round){
+          if(!m.done) continue;
+          const a = parseInt(m.scoreA,10), b = parseInt(m.scoreB,10);
+          const teamA = m.teamA, teamB = m.teamB;
+          teamA.forEach(p=>{ stats[p].P++; stats[p].PF+=a; stats[p].PA+=b; });
+          teamB.forEach(p=>{ stats[p].P++; stats[p].PF+=b; stats[p].PA+=a; });
+          if(a>b){ teamA.forEach(p=>stats[p].W++); teamB.forEach(p=>stats[p].L++); }
+          else if(b>a){ teamB.forEach(p=>stats[p].W++); teamA.forEach(p=>stats[p].L++); }
+        }
+      }
+      Object.values(stats).forEach(s=>{ s.PD = s.PF - s.PA; s.WinP = s.P ? (s.W/s.P) : 0; });
+      const rows = Object.values(stats).sort((x,y)=>{
+        if(y.W!==x.W) return y.W-x.W;
+        if(y.PD!==x.PD) return y.PD-x.PD;
+        if(y.PF!==x.PF) return y.PF-x.PF;
+        return x.Player.localeCompare(y.Player);
+      });
+      return rows;
+    }
+
+    /* ========= Rendering ========= */
+    function renderSchedule(){
+      elScheduleWrap.innerHTML = '';
+      const rounds = S.rounds;
+      elScheduleEmpty.style.display = rounds.length ? 'none' : 'block';
+      if(!rounds.length) return;
+
+      rounds.forEach((matches, rIdx)=>{
+        const h = document.createElement('h3');
+        h.textContent = `Round ${rIdx+1}`;
+        elScheduleWrap.appendChild(h);
+
+        const tbl = document.createElement('table');
+        tbl.innerHTML = `<thead>
+          <tr><th style="width:80px">Court</th><th>Team A</th><th>Team B</th><th style="width:160px">Score</th><th>Status</th></tr>
+        </thead><tbody></tbody>`;
+        const tb = tbl.querySelector('tbody');
+
+        matches.forEach(m=>{
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${m.court}</td>
+            <td>${escapeHtml(m.teamA.join(' & '))}</td>
+            <td>${escapeHtml(m.teamB.join(' & '))}</td>
+            <td>
+              <input type="number" min="0" step="1" value="${m.scoreA}" data-id="${m.id}" data-side="A"> :
+              <input type="number" min="0" step="1" value="${m.scoreB}" data-id="${m.id}" data-side="B">
+            </td>
+            <td><span class="badgel">${m.done?'Final':'—'}</span></td>
+          `;
+          tb.appendChild(tr);
+        });
+
+        elScheduleWrap.appendChild(tbl);
+      });
+
+      elScheduleWrap.querySelectorAll('input[type=number]').forEach(inp=>{
+        inp.addEventListener('input', onScoreInput);
+      });
+    }
+
+    function renderLeaderboard(){
+      elLeaderboardWrap.innerHTML='';
+      const rows = computeLeaderboard();
+      const tbl = document.createElement('table');
+      tbl.innerHTML = `<thead>
+        <tr><th>#</th><th>Player</th><th>P</th><th>W</th><th>L</th><th>PF</th><th>PA</th><th>PD</th><th>Win%</th></tr>
+      </thead><tbody></tbody>`;
+      const tb = tbl.querySelector('tbody');
+      rows.forEach((r,i)=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${i+1}</td><td>${escapeHtml(r.Player)}</td>
+          <td>${r.P}</td><td><b>${r.W}</b></td><td>${r.L}</td>
+          <td>${r.PF}</td><td>${r.PA}</td><td>${r.PD}</td><td>${(r.WinP*100).toFixed(0)}%</td>`;
+        tb.appendChild(tr);
+      });
+      elLeaderboardWrap.appendChild(tbl);
+    }
+
+    function renderLog(){
+      elLogWrap.innerHTML = '';
+      const list = [];
+      for(const round of S.rounds){
+        for(const m of round){
+          if(m.done){
+            list.push(`R${m.round} C${m.court}: ${m.teamA.join(' & ')} ${m.scoreA} – ${m.scoreB} ${m.teamB.join(' & ')}`);
+          }
+        }
+      }
+      if(!list.length){ elLogWrap.innerHTML = '<div class="muted">No completed matches yet.</div>'; return; }
+      const ul = document.createElement('ul'); ul.className='clean';
+      list.forEach(line=>{ const li=document.createElement('li'); li.textContent=line; ul.appendChild(li); });
+      elLogWrap.appendChild(ul);
+    }
+
+    function renderAll(){
+      document.querySelectorAll('input[name=mode]').forEach(r=> r.checked = (r.value===S.settings.mode));
+      elCourts.value = S.settings.courts;
+      elGameMins.value = S.settings.gameMins;
+      elSessionMins.value = S.settings.sessionMins;
+      elTargetMatches.value = S.settings.targetMatches||'';
+
+      renderPlayers();
+      renderSchedule();
+      renderLeaderboard();
+      renderLog();
+    }
+
+    /* ========= Wire up ========= */
+    elAddPlayerBtn.onclick = ()=>{
+      const v = elPlayerInput.value.trim();
+      if(!v) return;
+      const parts = v.split(',').map(s=>s.trim()).filter(Boolean);
+      S.players.push(...parts);
+      elPlayerInput.value=''; save(); renderPlayers();
+    };
+    elPlayerInput.addEventListener('keydown', e=>{ if(e.key==='Enter'){ elAddPlayerBtn.click(); } });
+
+    document.querySelectorAll('input[name=mode]').forEach(r=> r.addEventListener('change', ()=>{ settingsFromUI(); }));
+    [elCourts, elGameMins, elSessionMins, elTargetMatches].forEach(inp=> inp.addEventListener('input', settingsFromUI));
+
+    document.getElementById('genBtn').onclick = genSchedule;
+    document.getElementById('clearBtn').onclick = ()=>{ S.rounds=[]; save(); renderAll(); msg('Schedule cleared'); };
+
+    document.getElementById('exportBtn').onclick = ()=>{
+      const blob = new Blob([JSON.stringify(S,null,2)], {type:'application/json'});
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'padel_matchgen.json'; a.click();
+    };
+    document.getElementById('importFile').onchange = async (e)=>{
+      const file = e.target.files[0]; if(!file) return;
+      try{
+        const obj = JSON.parse(await file.text());
+        if(!('players' in obj) || !('rounds' in obj)) throw new Error('Invalid file');
+        S = obj; save(); renderAll(); msg('Imported successfully ✅');
+      }catch(err){ alert('Import failed: '+err.message); }
+      e.target.value='';
+    };
+    document.getElementById('resetBtn').onclick = ()=>{
+      if(!confirm('This will clear all data. Proceed?')) return;
+      const blob = new Blob([JSON.stringify(S,null,2)], {type:'application/json'});
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'padel_matchgen_backup.json'; a.click();
+      S = { players:[], settings:{mode:'doubles',courts:2,gameMins:10,sessionMins:120,targetMatches:''}, rounds:[] };
+      save(); renderAll(); msg('Reset done');
+    };
+
+    // init
+    renderAll();
+  </script>
+</body>
+</html>
