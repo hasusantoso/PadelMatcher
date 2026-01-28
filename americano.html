@@ -3,29 +3,23 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Simple Scoreboard</title>
+  <title>Americano Scoreboard</title>
   <style>
     :root{
-      /* Theme */
       --bg: #0f1220;
-      --panel: #161a2e;
       --text: #f5f7ff;
       --muted: #a8b0cf;
       --btn: #212748;
       --btn-hover: #2a3160;
-      --shadow: 0 10px 30px rgba(0,0,0,0.3);
       --radius: 16px;
+      /* Requested colors */
+      --left-accent: #4cc9f0;  /* light blue */
+      --right-accent: #ff6b6b; /* guava */
 
-      /* Team colors (as requested) */
-      --left-accent: #4cc9f0;   /* light blue */
-      --right-accent: #ff6b6b;  /* guava */
-
-      /* Fluid type & spacing (mobile landscape friendly) */
       --fs-xxl: clamp(38px, 8vw, 84px);
       --fs-xl: clamp(22px, 4.8vw, 42px);
       --fs-lg: clamp(18px, 3.2vw, 28px);
       --fs-md: clamp(14px, 2.4vw, 20px);
-      --space-xl: clamp(16px, 4vw, 36px);
       --space-lg: clamp(12px, 2.8vw, 24px);
       --space-md: clamp(10px, 2.2vw, 18px);
       --space-sm: clamp(6px, 1.6vw, 12px);
@@ -37,14 +31,10 @@
     html, body { height: 100%; }
     body {
       margin: 0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
       color: var(--text);
-      background:
-        radial-gradient(1200px 600px at 80% 10%, #1a1f3e 0%, transparent 60%),
-        radial-gradient(900px 700px at 10% 90%, #10162a 0%, transparent 60%),
-        var(--bg);
-      display: grid;
-      place-items: center;
+      background: var(--bg);
+      display: grid; place-items: center;
       padding: env(safe-area-inset-top) env(safe-area-inset-right)
                env(safe-area-inset-bottom) env(safe-area-inset-left);
     }
@@ -52,238 +42,274 @@
     .app {
       width: min(1200px, 96vw);
       height: min(740px, 92vh);
-      display: grid;
-      grid-template-rows: auto 1fr auto;
-      gap: var(--space-lg);
-      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0));
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: clamp(12px, 2.5vw, 24px);
-      backdrop-filter: blur(6px);
-    }
-
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: var(--space-md);
-    }
-
-    .title {
-      font-size: var(--fs-xl);
-      font-weight: 700;
-      letter-spacing: 0.3px;
-      display: flex;
-      align-items: center;
-      gap: var(--space-sm);
-    }
-
-    .title .dot {
-      width: 0.75em;
-      height: 0.75em;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--left-accent), #845ef7);
-      box-shadow: 0 0 18px rgba(76, 201, 240, 0.55);
-    }
-
-    .controls {
-      display: flex;
-      gap: var(--space-sm);
-      flex-wrap: wrap;
-    }
-
-    .btn, button {
-      cursor: pointer;
-      background: var(--btn);
-      color: var(--text);
+      display: grid; grid-template-rows: auto 1fr auto; gap: var(--space-lg);
+      background: #12152a;
       border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 12px;
-      padding: 0 clamp(12px, 2vw, 18px);
-      height: var(--chip-h);
-      font-size: var(--fs-md);
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      transition: 0.18s ease;
-      user-select: none;
-    }
-    .btn:hover { background: var(--btn-hover); transform: translateY(-1px); }
-    .btn:active { transform: translateY(0); }
-    .btn[disabled] { opacity: 0.5; cursor: not-allowed; transform: none; }
-
-    .btn.accent { background: #26306b; border-color: #4050aa; }
-    .btn.warn { background: #40222a; border-color: #ff6b6b44; color: #ffdede; }
-    .btn.success { background: #1e3a31; border-color: #66ffcc33; color: #d7ffef; }
-
-    main {
-      display: grid;
-      grid-template-columns: 1fr clamp(8px, 1.2vw, 16px) 1fr;
-      gap: var(--space-lg);
-      align-items: stretch;
-    }
-
-    .divider {
-      background: linear-gradient(180deg, transparent, rgba(255,255,255,0.14), transparent);
-      border-radius: 999px;
-      width: 100%;
-    }
-
-    .board {
-      position: relative;
-      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
-      border: 1px solid rgba(255,255,255,0.09);
       border-radius: var(--radius);
-      padding: clamp(10px, 2vw, 20px);
-      display: grid;
-      grid-template-rows: auto 1fr auto;
-      gap: var(--space-md);
-      min-height: 0;
-      overflow: hidden;
+      padding: clamp(12px, 2.5vw, 24px);
     }
 
-    /* Accent rings per side */
-    .board.teamA { box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--left-accent) 30%, transparent), 0 0 45px color-mix(in oklab, var(--left-accent) 12%, transparent); }
-    .board.teamB { box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--right-accent) 30%, transparent), 0 0 45px color-mix(in oklab, var(--right-accent) 12%, transparent); }
+    header { display:flex; align-items:center; justify-content:space-between; gap:var(--space-md); }
+    .title { font-size: var(--fs-xl); font-weight: 800; letter-spacing: 0.3px; display:flex; gap:10px; align-items:center; }
+    .dot { width:0.75em; height:0.75em; border-radius:50%; background: var(--left-accent); box-shadow:0 0 12px var(--left-accent); }
 
-    /* Serve glow when active */
-    .board.serving.teamA { outline: 2px solid color-mix(in oklab, var(--left-accent) 60%, transparent); }
-    .board.serving.teamB { outline: 2px solid color-mix(in oklab, var(--right-accent) 60%, transparent); }
+    .btn, button { cursor:pointer; background: var(--btn); color: var(--text); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:0 14px; height: var(--chip-h); font-size: var(--fs-md); }
+    .btn:hover { background: var(--btn-hover); }
+    .btn[disabled]{ opacity:.5; cursor:not-allowed; }
+    .btn.warn { background:#40222a; border-color:#ff6b6b55; }
 
-    .team {
-      display: grid;
-      grid-template-columns: 1fr auto auto;
-      gap: var(--space-sm);
-      align-items: center;
-    }
+    main { display:grid; grid-template-columns: 1fr 8px 1fr; gap: var(--space-lg); align-items: stretch; }
+    .divider { background: rgba(255,255,255,0.18); border-radius: 999px; }
 
-    .team input[type="text"] {
-      background: #0f1330;
-      color: var(--text);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 10px;
-      padding: 0 12px;
-      height: var(--control-h);
-      font-size: var(--fs-lg);
-      font-weight: 700;
-      letter-spacing: 0.3px;
-      outline: none;
-      width: 100%;
-    }
+    .board { position:relative; background:#181c34; border:1px solid rgba(255,255,255,0.08); border-radius: var(--radius); padding: clamp(10px, 2vw, 20px); display:grid; grid-template-rows: auto 1fr auto; gap:var(--space-md); }
+    .board.teamA { box-shadow: inset 0 0 0 2px rgba(76,201,240,0.25); }
+    .board.teamB { box-shadow: inset 0 0 0 2px rgba(255,107,107,0.25); }
+    .board.serving.teamA { outline: 2px solid rgba(76,201,240,0.7); }
+    .board.serving.teamB { outline: 2px solid rgba(255,107,107,0.7); }
 
-    .serve-indicator {
-      width: var(--control-h);
-      height: var(--control-h);
-      border-radius: 999px;
-      display: grid;
-      place-items: center;
-      font-size: 1.2em;
-      border: 1px solid rgba(255,255,255,0.18);
-      background: #161b36;
-      color: #fff;
-      filter: drop-shadow(0 0 10px rgba(0,0,0,0.3));
-    }
-    .teamA .serve-indicator { box-shadow: 0 0 20px color-mix(in oklab, var(--left-accent) 35%, transparent) inset, 0 0 25px color-mix(in oklab, var(--left-accent) 30%, transparent); }
-    .teamB .serve-indicator { box-shadow: 0 0 20px color-mix(in oklab, var(--right-accent) 35%, transparent) inset, 0 0 25px color-mix(in oklab, var(--right-accent) 30%, transparent); }
-    .serve-indicator[hidden] { display: none; }
+    .team { display:grid; grid-template-columns: 1fr auto auto; gap: var(--space-sm); align-items:center; }
+    .team input[type=text]{ background:#0f1330; color:var(--text); border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:0 12px; height: var(--control-h); font-size: var(--fs-lg); font-weight:700; }
 
-    .score {
-      display: grid;
-      place-items: center;
-      font-size: var(--fs-xxl);
-      font-weight: 800;
-      line-height: 1;
-      letter-spacing: 1px;
-      padding: var(--space-lg) 0;
-      color: #fff;
-      text-shadow:
-        0 2px 10px rgba(0,0,0,0.25),
-        0 0 26px rgba(132, 94, 247, 0.35);
-      user-select: none;
-    }
+    .serve-indicator { width: var(--control-h); height: var(--control-h); border-radius: 999px; display:grid; place-items:center; border:1px solid rgba(255,255,255,0.2); background:#161b36; color:#fff; }
+    .serve-indicator[hidden]{ display:none; }
 
-    .actions {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: var(--space-sm);
-    }
-    .actions button { height: var(--control-h); font-size: var(--fs-md); }
+    .score { display:grid; place-items:center; font-size: var(--fs-xxl); font-weight: 900; padding: var(--space-md) 0; }
 
-    .quickset {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: var(--space-sm);
-      margin-top: var(--space-sm);
-      align-items: center;
-    }
-    .quickset input[type="number"] {
-      background: #0f1330;
-      color: var(--text);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 10px;
-      padding: 0 12px;
-      height: var(--control-h);
-      font-size: var(--fs-md);
-      outline: none;
-      width: 100%;
-    }
+    .actions { display:grid; grid-template-columns: repeat(4,1fr); gap: var(--space-sm); }
+    .quickset { display:grid; grid-template-columns: 1fr auto; gap: var(--space-sm); }
+    .quickset input[type=number]{ background:#0f1330; color:var(--text); border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:0 12px; height: var(--control-h); font-size: var(--fs-md); }
 
-    /* Winner ribbon */
-    .board.winner::after{
-      content: "WINNER";
-      position: absolute;
-      top: 10px; right: -40px;
-      transform: rotate(35deg);
-      background: linear-gradient(90deg, #22c55e, #16a34a);
-      color: white;
-      padding: 8px 60px;
-      font-weight: 900;
-      letter-spacing: 2px;
-      text-shadow: 0 1px 0 rgba(0,0,0,0.2);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
-      border: 1px solid rgba(255,255,255,0.18);
-    }
+    .board.winner::after { content: 'WINNER'; position:absolute; top:10px; right:-40px; transform: rotate(35deg); background:#16a34a; color:#fff; padding:8px 60px; font-weight:900; letter-spacing:2px; }
 
-    footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: var(--space-md);
-      color: var(--muted);
-      font-size: var(--fs-md);
-    }
+    footer { display:flex; justify-content:space-between; align-items:center; gap:var(--space-md); color: var(--muted); font-size: var(--fs-md); }
 
-    .kbd {
-      display: inline-grid;
-      grid-auto-flow: column;
-      gap: 6px;
-      align-items: center;
-      padding: 0 10px;
-      height: var(--chip-h);
-      border: 1px dashed rgba(255,255,255,0.2);
-      border-radius: 10px;
-      color: #c7ccf5;
-    }
-    .kbd kbd{
-      background: #1a1f3c;
-      border: 1px solid rgba(255,255,255,0.2);
-      border-bottom-width: 3px;
-      border-radius: 6px;
-      padding: 2px 8px;
-      font-weight: 700;
-      font-size: 0.9em;
-    }
+    .status { display:inline-grid; grid-auto-flow: column; align-items:center; gap:10px; padding:0 12px; height: var(--chip-h); border:1px solid rgba(255,255,255,0.15); border-radius:10px; background:#12162d; color:#e0e6ff; }
+    .ball { width:14px; height:14px; border-radius:50%; background:#fff; }
+    .status.left .ball { background: var(--left-accent); }
+    .status.right .ball { background: var(--right-accent); }
 
-    .status {
-      display: inline-grid;
-      grid-auto-flow: column;
-      align-items: center;
-      gap: 10px;
-      padding: 0 12px;
-      height: var(--chip-h);
-      border: 1px solid rgba(255,255,255,0.15);
-      border-radius: 10px;
-      background: #12162d;
-      color: #e0e6ff;
+    @media (max-aspect-ratio: 1/1){
+      .app { height:auto; min-height:100dvh; }
+      main { grid-template-columns: 1fr; }
+      .divider { height:8px; width:60%; margin:0 auto; }
     }
-    .status .ball {
+  </style>
+</head>
+<body>
+  <div class="app" role="application" aria-label="Scoreboard">
+    <header>
+      <div class="title"><span class="dot" aria-hidden="true"></span> Americano Scoreboard</div>
+      <div class="controls">
+        <button id="swap" class="btn" title="Swap teams">🔁 Swap</button>
+        <button id="reset" class="btn warn" title="Reset all">♻️ Reset</button>
+        <button id="clearStorage" class="btn" title="Clear saved data">🗑 Clear Save</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="board teamA" id="boardA" aria-labelledby="teamA-label">
+        <div class="team teamA">
+          <input id="teamA-name" type="text" value="Team A" aria-label="Team A name" />
+          <button id="teamA-saveName" class="btn" title="Save team name">💾</button>
+          <div id="serveA" class="serve-indicator" title="Serving" aria-label="Serving" hidden>🎾</div>
+        </div>
+        <div class="score" id="teamA-score" aria-live="polite">0</div>
+        <div class="actions">
+          <button data-team="A" data-delta="-5" class="btn">−5</button>
+          <button data-team="A" data-delta="-1" class="btn">−1</button>
+          <button data-team="A" data-delta="+1" class="btn">+1</button>
+          <button data-team="A" data-delta="+5" class="btn">+5</button>
+        </div>
+        <div class="quickset">
+          <input id="teamA-set" type="number" inputmode="numeric" placeholder="Set score…" />
+          <button id="teamA-apply" class="btn">Set</button>
+        </div>
+      </section>
+
+      <div class="divider" aria-hidden="true"></div>
+
+      <section class="board teamB" id="boardB" aria-labelledby="teamB-label">
+        <div class="team teamB">
+          <input id="teamB-name" type="text" value="Team B" aria-label="Team B name" />
+          <button id="teamB-saveName" class="btn" title="Save team name">💾</button>
+          <div id="serveB" class="serve-indicator" title="Serving" aria-label="Serving" hidden>🎾</div>
+        </div>
+        <div class="score" id="teamB-score" aria-live="polite">0</div>
+        <div class="actions">
+          <button data-team="B" data-delta="-5" class="btn">−5</button>
+          <button data-team="B" data-delta="-1" class="btn">−1</button>
+          <button data-team="B" data-delta="+1" class="btn">+1</button>
+          <button data-team="B" data-delta="+5" class="btn">+5</button>
+        </div>
+        <div class="quickset">
+          <input id="teamB-set" type="number" inputmode="numeric" placeholder="Set score…" />
+          <button id="teamB-apply" class="btn">Set</button>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="status" id="statusServe">
+        <span class="ball"></span>
+        <span id="statusText">Total: 0 · Serving: Left</span>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    (function(){
+      const TARGET_POINTS = 21;        // First to 21 wins
+      const SERVE_INTERVAL = 5;        // Switch serve every 5 total points
+      const STORAGE_KEY = 'americano_scoreboard_v1';
+
+      const els = {
+        boardA: document.getElementById('boardA'),
+        boardB: document.getElementById('boardB'),
+        aName: document.getElementById('teamA-name'),
+        bName: document.getElementById('teamB-name'),
+        aSave: document.getElementById('teamA-saveName'),
+        bSave: document.getElementById('teamB-saveName'),
+        aScore: document.getElementById('teamA-score'),
+        bScore: document.getElementById('teamB-score'),
+        aSet: document.getElementById('teamA-set'),
+        bSet: document.getElementById('teamB-set'),
+        aApply: document.getElementById('teamA-apply'),
+        bApply: document.getElementById('teamB-apply'),
+        serveA: document.getElementById('serveA'),
+        serveB: document.getElementById('serveB'),
+        swap: document.getElementById('swap'),
+        reset: document.getElementById('reset'),
+        clear: document.getElementById('clearStorage'),
+        status: document.getElementById('statusServe'),
+        statusText: document.getElementById('statusText'),
+        buttons: Array.from(document.querySelectorAll('.actions button')),
+      };
+
+      // State
+      let state = {
+        teamA: { name: 'Team A', score: 0 },
+        teamB: { name: 'Team B', score: 0 },
+        gameOver: false
+      };
+
+      function load(){
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if(raw){
+            const parsed = JSON.parse(raw);
+            if(parsed && parsed.teamA && parsed.teamB){
+              state = Object.assign({gameOver:false}, parsed);
+            }
+          }
+        } catch(e){ /* ignore */ }
+        render();
+      }
+
+      function save(){
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+        catch(e){ /* ignore */ }
+      }
+
+      function clampScore(v){
+        if(!Number.isFinite(v)) return 0;
+        return Math.max(0, Math.min(9999, Math.round(v)));
+      }
+
+      function getTotal(){ return (state.teamA.score|0) + (state.teamB.score|0); }
+
+      function getServeSide(){
+        const rotations = Math.floor(getTotal() / SERVE_INTERVAL);
+        return (rotations % 2 === 0) ? 'A' : 'B';
+      }
+
+      function checkWinner(){
+        if(state.teamA.score >= TARGET_POINTS || state.teamB.score >= TARGET_POINTS){
+          state.gameOver = true; return true;
+        }
+        return false;
+      }
+
+      function setDisabledForScoring(disabled){
+        els.buttons.forEach(b => b.disabled = disabled);
+        els.aApply.disabled = disabled; els.bApply.disabled = disabled;
+      }
+
+      function render(){
+        els.aName.value = state.teamA.name; els.bName.value = state.teamB.name;
+        els.aScore.textContent = state.teamA.score; els.bScore.textContent = state.teamB.score;
+        document.title = `${state.teamA.name} ${state.teamA.score} – ${state.teamB.score} ${state.teamB.name}`;
+
+        const serve = getServeSide();
+        const total = getTotal();
+        els.serveA.hidden = !(serve === 'A');
+        els.serveB.hidden = !(serve === 'B');
+        els.boardA.classList.toggle('serving', serve === 'A');
+        els.boardB.classList.toggle('serving', serve === 'B');
+        els.statusText.textContent = `Total: ${total} · Serving: ${serve === 'A' ? state.teamA.name : state.teamB.name}`;
+        els.status.classList.toggle('left', serve === 'A');
+        els.status.classList.toggle('right', serve === 'B');
+
+        const aWins = state.teamA.score >= TARGET_POINTS;
+        const bWins = state.teamB.score >= TARGET_POINTS;
+        els.boardA.classList.toggle('winner', aWins);
+        els.boardB.classList.toggle('winner', bWins);
+        setDisabledForScoring(state.gameOver);
+      }
+
+      function delta(team, amount){
+        if(state.gameOver) return;
+        const key = team === 'A' ? 'teamA' : 'teamB';
+        state[key].score = clampScore(state[key].score + amount);
+        if(checkWinner()){ save(); render(); return; }
+        save(); render();
+      }
+
+      function setScore(team, value){
+        if(state.gameOver) return;
+        const key = team === 'A' ? 'teamA' : 'teamB';
+        state[key].score = clampScore(value);
+        if(checkWinner()){ save(); render(); return; }
+        save(); render();
+      }
+
+      function resetAll(){
+        state.teamA.score = 0; state.teamB.score = 0; state.gameOver = false; save(); render();
+      }
+
+      function swapTeams(){
+        const tmp = JSON.parse(JSON.stringify(state.teamA));
+        state.teamA = JSON.parse(JSON.stringify(state.teamB));
+        state.teamB = tmp; save(); render();
+      }
+
+      // Handlers
+      els.buttons.forEach(btn => {
+        const team = btn.getAttribute('data-team');
+        const deltaVal = Number(btn.getAttribute('data-delta'));
+        btn.addEventListener('click', () => delta(team, deltaVal));
+      });
+      els.aApply.addEventListener('click', () => setScore('A', Number(els.aSet.value)));
+      els.bApply.addEventListener('click', () => setScore('B', Number(els.bSet.value)));
+      els.aSave.addEventListener('click', () => { state.teamA.name = els.aName.value.trim() || 'Team A'; save(); render(); });
+      els.bSave.addEventListener('click', () => { state.teamB.name = els.bName.value.trim() || 'Team B'; save(); render(); });
+      document.getElementById('reset').addEventListener('click', resetAll);
+      document.getElementById('swap').addEventListener('click', swapTeams);
+      document.getElementById('clearStorage').addEventListener('click', () => { localStorage.removeItem(STORAGE_KEY); load(); });
+
+      // Keyboard shortcuts
+      window.addEventListener('keydown', (e) => {
+        const k = e.key.toLowerCase();
+        if (k === 'r') { resetAll(); return; }
+        if (state.gameOver) return;
+        if (k === 'a') delta('A', +1);
+        else if (k === 'z') delta('A', -1);
+        else if (k === 'k') delta('B', +1);
+        else if (k === 'm') delta('B', -1);
+      }, {passive: true});
+
+      // Init
+      load();
+    })();
+  </script>
+</body>
+</html>
