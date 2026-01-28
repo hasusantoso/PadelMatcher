@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <!-- Tweak initial-scale if you want Safari to render smaller at first load -->
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Americano Scoreboard</title>
   <style>
@@ -63,20 +62,20 @@
       letter-spacing: 0.3px;
     }
 
-    /* Logo image (shown when present) */
+    /* Logo image (use your own logo.png) */
     .brand-logo {
-      width: clamp(40px, 8vw, 80px);
+      width: clamp(40px, 8vw, 80px);   /* <-- bigger logo */
       height: clamp(40px, 8vw, 80px);
       object-fit: contain;
-      border-radius: 10px;        /* set to 50% if you want a round logo */
+      border-radius: 10px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.35);
       background: #090b18;
     }
 
     /* Initials badge (fallback when logo isn't available) */
     .brand-badge {
-      width: clamp(28px, 4.8vw, 48px);
-      height: clamp(28px, 4.8vw, 48px);
+      width: clamp(40px, 8vw, 80px);
+      height: clamp(40px, 8vw, 80px);
       border-radius: 50%;
       display: grid;
       place-items: center;
@@ -86,11 +85,7 @@
       background: linear-gradient(135deg, var(--left-accent), #9be1fb);
       box-shadow: 0 2px 10px rgba(0,0,0,0.35);
     }
-
-    /* When logo loads ok, hide the initials badge */
     header.logo-ok .brand-badge { display: none; }
-
-    .dot { width:0.9em; height:0.9em; border-radius:50%; background: var(--left-accent); box-shadow:0 0 14px var(--left-accent); }
 
     .btn, button {
       cursor:pointer; background: var(--btn); color: var(--text);
@@ -196,11 +191,14 @@
 <body>
   <div class="app" role="application" aria-label="Scoreboard">
     <header id="header">
-      <img id="brandLogo" class="brand-logo" src="logo.png" alt="Logo" />
+      <!-- Logo (use your logo.png in the same folder) -->
+      logo.png
       <div class="brand-badge" id="brandBadge" aria-label="Logo">SS</div>
-      <div class="title">       
+
+      <div class="title">
         <span>Americano Scoreboard</span>
       </div>
+
       <div class="controls">
         <button id="reset" class="btn warn" title="Reset all">♻️ Reset</button>
         <button id="clearStorage" class="btn" title="Clear saved data">🗑 Clear Save</button>
@@ -240,21 +238,21 @@
     <footer>
       <div class="status" id="statusServe">
         <span class="ball"></span>
-        <span id="statusText">Total: 0 · Serving: Left</span>
+        <span id="statusText">Total: 0 · Serving: Team A</span>
       </div>
     </footer>
   </div>
 
   <div id="confetti" class="confetti" aria-hidden="true"></div>
 
-  <!-- Audio: tiny embedded MP3 chime for total=21 (swap with your own URL if desired) -->
+  <!-- Audio: tiny embedded MP3 chime for total=21 -->
   <audio id="total21Sound" preload="auto"><source id="total21Src" type="audio/mp3" /></audio>
 
   <script>
     (function(){
-      const TARGET_POINTS = 21;        // Team wins at 21 (shows WINNER)
+      const TARGET_POINTS = 21;        // Team wins at 21
       const SERVE_INTERVAL = 5;        // Auto switch every 5 total points
-      const STORAGE_KEY = 'americano_scoreboard_index_v3';
+      const STORAGE_KEY = 'americano_scoreboard_index_v4';
 
       const els = {
         header: document.getElementById('header'),
@@ -287,39 +285,66 @@
         teamB: { name: 'Team B', score: 0 },
         gameOver: false,
         lastCelebratedTotal: -1,
-        manualServe: null  // 'A' or 'B' when manually set; null = auto
+        manualServe: null,          // 'A' or 'B' if manually overridden; null = auto
+        manualServeBucket: null     // the bucket (Math.floor(total/5)) when manual override was set
       };
 
-      // --- Branding: use initials if logo not found ---
+      // Branding badge fallback when logo not available (optional safety)
       try {
-        els.logo.addEventListener('load', () => {
-          // If image dimensions look valid, mark header as logo-ok
-          if (els.logo.naturalWidth > 0) els.header.classList.add('logo-ok');
-        });
-        els.logo.addEventListener('error', () => {
-          els.header.classList.remove('logo-ok');
-        });
+        const logoEl = document.getElementById('brandLogo');
+        if (logoEl) {
+          logoEl.addEventListener('load', () => {
+            if (logoEl.naturalWidth > 0) document.getElementById('header').classList.add('logo-ok');
+          });
+          logoEl.addEventListener('error', () => {
+            document.getElementById('header').classList.remove('logo-ok');
+          });
+        }
       } catch(e){}
 
+      function save(){ try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e){} }
       function load(){
         try {
           const raw = localStorage.getItem(STORAGE_KEY);
           if(raw){
             const parsed = JSON.parse(raw);
             if(parsed && parsed.teamA && parsed.teamB){
-              state = Object.assign({gameOver:false,lastCelebratedTotal:-1,manualServe:null}, parsed);
+              state = Object.assign({
+                gameOver:false,
+                lastCelebratedTotal:-1,
+                manualServe:null,
+                manualServeBucket:null
+              }, parsed);
             }
           }
         } catch(e){}
         try { els.total21Src.src = base64Mp3; els.total21Sound.load(); } catch(e){}
         render();
       }
-      function save(){ try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e){} }
+
       function clampScore(v){ if(!Number.isFinite(v)) return 0; return Math.max(0, Math.min(9999, Math.round(v))); }
       function getTotal(){ return (state.teamA.score|0) + (state.teamB.score|0); }
-      function getAutoServe(){ const rotations = Math.floor(getTotal() / SERVE_INTERVAL); return (rotations % 2 === 0) ? 'A' : 'B'; }
-      function getServe(){ return state.manualServe || getAutoServe(); }
-      function checkWinner(){ if(state.teamA.score >= TARGET_POINTS || state.teamB.score >= TARGET_POINTS){ state.gameOver = true; return true; } return false; }
+      function currentBucket(){ return Math.floor(getTotal() / SERVE_INTERVAL); }
+      function getAutoServe(){ return (currentBucket() % 2 === 0) ? 'A' : 'B'; }
+
+      // Serve logic: manual override expires automatically when bucket changes
+      function getServe(){
+        if (state.manualServe == null) return getAutoServe();
+        // If we’ve moved to a new 5-point bucket, clear manual override
+        if (state.manualServeBucket !== currentBucket()) {
+          state.manualServe = null;
+          state.manualServeBucket = null;
+          return getAutoServe();
+        }
+        return state.manualServe;
+      }
+
+      function checkWinner(){
+        if(state.teamA.score >= TARGET_POINTS || state.teamB.score >= TARGET_POINTS){
+          state.gameOver = true; return true;
+        }
+        return false;
+      }
       function setDisabledForScoring(disabled){ els.buttons.forEach(b => b.disabled = disabled); }
       function playTotal21(){ try { const p = els.total21Sound.play(); if(p && typeof p.then === 'function'){ p.catch(()=>{}); } } catch(e){} }
 
@@ -327,6 +352,7 @@
         const total = getTotal();
         if(total !== 21 || state.lastCelebratedTotal === 21) return;
         state.lastCelebratedTotal = 21; playTotal21();
+
         const colors = ['#4cc9f0','#ff6b6b','#ffe066','#69db7c','#b197fc'];
         const pieces = 80; els.confetti.innerHTML = '';
         for(let i=0;i<pieces;i++){
@@ -346,19 +372,29 @@
         els.aScore.textContent = state.teamA.score; els.bScore.textContent = state.teamB.score;
         document.title = `${state.teamA.name} ${state.teamA.score} – ${state.teamB.score} ${state.teamB.name}`;
 
-        const serve = getServe(); const total = getTotal();
-        els.serveA.hidden = !(serve === 'A'); els.serveB.hidden = !(serve === 'B');
-        els.boardA.classList.toggle('serving', serve === 'A'); els.boardB.classList.toggle('serving', serve === 'B');
+        const serve = getServe();
+        const total = getTotal();
 
-        const modeLabel = state.manualServe ? 'manual' : 'auto';
-        els.statusText.textContent = `Total: ${total} · Serving: ${serve === 'A' ? state.teamA.name : state.teamB.name} (${modeLabel})`;
+        // indicators and outline
+        els.serveA.hidden = !(serve === 'A');
+        els.serveB.hidden = !(serve === 'B');
+        els.boardA.classList.toggle('serving', serve === 'A');
+        els.boardB.classList.toggle('serving', serve === 'B');
+
+        // status text: NO (auto)/(manual) suffix
+        els.statusText.textContent = `Total: ${total} · Serving: ${serve === 'A' ? state.teamA.name : state.teamB.name}`;
         els.status.classList.toggle('left', serve === 'A');
         els.status.classList.toggle('right', serve === 'B');
 
         const aWins = state.teamA.score >= TARGET_POINTS; const bWins = state.teamB.score >= TARGET_POINTS;
-        els.boardA.classList.toggle('winner', aWins); els.boardB.classList.toggle('winner', bWins);
+        els.boardA.classList.toggle('winner', aWins);
+        els.boardB.classList.toggle('winner', bWins);
+
         setDisabledForScoring(state.gameOver);
         celebrateTotal();
+
+        // Persist any auto-expiry change of manual serve
+        save();
       }
 
       function delta(team, amount){
@@ -369,14 +405,20 @@
       }
 
       function resetAll(){
-        state.teamA.score = 0; state.teamB.score = 0;
-        state.gameOver = false; state.lastCelebratedTotal = -1; state.manualServe = null;
+        state.teamA.score = 0;
+        state.teamB.score = 0;
+        state.gameOver = false;
+        state.lastCelebratedTotal = -1;
+        state.manualServe = null;
+        state.manualServeBucket = null;
         save(); render();
       }
 
       function toggleServe(){
         const current = getServe();
+        // Set manual serve to the opposite of current; remember the bucket where it was set
         state.manualServe = (current === 'A') ? 'B' : 'A';
+        state.manualServeBucket = currentBucket();
         save(); render();
       }
 
@@ -403,8 +445,6 @@
         else if (k === 'm') delta('B', -1);
       }, {passive: true});
 
-      // Prepare audio and initialize
-      try { els.total21Src.src = base64Mp3; els.total21Sound.load(); } catch(e){}
       load();
     })();
   </script>
