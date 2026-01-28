@@ -202,8 +202,8 @@
         <span>Americano Scoreboard</span>
       </div>
       <div class="controls">
-        <button id="reset" class="btn warn" title="Reset all">♻️ Reset</button>
-        <button id="clearStorage" class="btn" title="Clear saved data">🗑 Clear Save</button>
+        <button id="newGame" class="btn warn" title="Start a new game">🆕 New Game</button>
+        
         <!-- Manual serve toggle -->
         <button id="toggleServe" class="btn accent" title="Manually change serve">🎾 Change Serve</button>
       </div>
@@ -387,6 +387,21 @@ tate.teamA.score = 0; state.teamB.score = 0;
 
       }
 
+      
+function newGame(){
+  state = {
+    teamA: { name: state.teamA.name, score: 0 },
+    teamB: { name: state.teamB.name, score: 0 },
+    gameOver: false,
+    lastCelebratedTotal: -1,
+    serveParityOffset: 0
+  };
+  save();
+  render();
+}
+
+
+      
       function toggleServe(){
 
   // Flip parity; auto logic continues (every 5 points), starting from opposite side
@@ -404,6 +419,7 @@ tate.teamA.score = 0; state.teamB.score = 0;
       els.aName.addEventListener('change', ()=>{ state.teamA.name = els.aName.value.trim() || 'Team A'; save(); render(); });
       els.bName.addEventListener('change', ()=>{ state.teamB.name = els.bName.value.trim() || 'Team B'; save(); render(); });
       els.reset.addEventListener('click', resetAll);
+      els.newGame.addEventListener('click', newGame);
       els.clear.addEventListener('click', () => { localStorage.removeItem(STORAGE_KEY); load(); });
       els.toggleServe.addEventListener('click', toggleServe);
 
