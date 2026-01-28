@@ -378,14 +378,14 @@ function getServe(){ return getAutoServe(); }
         save(); render();
       }
 
-      function resetAll(){
-        
-tate.teamA.score = 0; state.teamB.score = 0;
+  
+function resetAll(){
+  state.teamA.score = 0; state.teamB.score = 0;
   state.gameOver = false; state.lastCelebratedTotal = -1;
   state.serveParityOffset = 0;   // reset offset on reset
   save(); render();
+}
 
-      }
 
       
 function newGame(){
@@ -420,7 +420,6 @@ function toggleServe(){
       els.aName.addEventListener('change', ()=>{ state.teamA.name = els.aName.value.trim() || 'Team A'; save(); render(); });
       els.bName.addEventListener('change', ()=>{ state.teamB.name = els.bName.value.trim() || 'Team B'; save(); render(); });
       els.newGame.addEventListener('click', newGame);
-      els.clear.addEventListener('click', () => { localStorage.removeItem(STORAGE_KEY); load(); });
       els.toggleServe.addEventListener('click', toggleServe);
 
       // Keyboard shortcuts
