@@ -318,12 +318,13 @@
       function getTotal(){ return (state.teamA.score|0) + (state.teamB.score|0); }
       
       
+
 function getAutoServe(){
   const rotations = Math.floor(getTotal() / SERVE_INTERVAL);
-  // Apply offset so a manual click flips starting side but auto keeps working
   return ((rotations + (state.serveParityOffset|0)) % 2 === 0) ? 'A' : 'B';
 }
-function getServe(){ return getAutoServe(); }  // always auto with offset
+function getServe(){ return getAutoServe(); }
+
 
       
       function checkWinner(){ if(state.teamA.score >= TARGET_POINTS || state.teamB.score >= TARGET_POINTS){ state.gameOver = true; return true; } return false; }
@@ -401,13 +402,14 @@ function newGame(){
 
 
       
-      function toggleServe(){
 
-  // Flip parity; auto logic continues (every 5 points), starting from opposite side
+function toggleServe(){
   state.serveParityOffset = (state.serveParityOffset ^ 1);
-  save(); render();
+  save();
+  render();
+}
 
-      }
+
 
       // Bind buttons
       document.querySelectorAll('.actions button').forEach(btn => {
