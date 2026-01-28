@@ -268,8 +268,7 @@
         bScore: document.getElementById('teamB-score'),
         serveA: document.getElementById('serveA'),
         serveB: document.getElementById('serveB'),
-        reset: document.getElementById('reset'),
-        clear: document.getElementById('clearStorage'),
+        newGame: document.getElementById('newGame'),
         toggleServe: document.getElementById('toggleServe'),
         status: document.getElementById('statusServe'),
         statusText: document.getElementById('statusText'),
@@ -418,7 +417,6 @@ function newGame(){
       });
       els.aName.addEventListener('change', ()=>{ state.teamA.name = els.aName.value.trim() || 'Team A'; save(); render(); });
       els.bName.addEventListener('change', ()=>{ state.teamB.name = els.bName.value.trim() || 'Team B'; save(); render(); });
-      els.reset.addEventListener('click', resetAll);
       els.newGame.addEventListener('click', newGame);
       els.clear.addEventListener('click', () => { localStorage.removeItem(STORAGE_KEY); load(); });
       els.toggleServe.addEventListener('click', toggleServe);
