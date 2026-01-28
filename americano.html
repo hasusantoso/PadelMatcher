@@ -12,19 +12,22 @@
       --btn: #212748;
       --btn-hover: #2a3160;
       --radius: 16px;
-      /* Requested colors */
-      --left-accent: #4cc9f0;  /* light blue */
-      --right-accent: #ff6b6b; /* guava */
 
-      --fs-xxl: clamp(38px, 8vw, 84px);
-      --fs-xl: clamp(22px, 4.8vw, 42px);
-      --fs-lg: clamp(18px, 3.2vw, 28px);
-      --fs-md: clamp(14px, 2.4vw, 20px);
-      --space-lg: clamp(12px, 2.8vw, 24px);
-      --space-md: clamp(10px, 2.2vw, 18px);
-      --space-sm: clamp(6px, 1.6vw, 12px);
-      --control-h: clamp(44px, 8.5vh, 64px);
-      --chip-h: clamp(36px, 7vh, 52px);
+      /* Team colors */
+      --left-accent: #4cc9f0;   /* light blue */
+      --right-accent: #ff6b6b;  /* guava */
+
+      /* Bigger score typography */
+      --fs-giant: clamp(64px, 16vw, 160px);
+      --fs-xl: clamp(24px, 5vw, 48px);
+      --fs-lg: clamp(18px, 3.4vw, 30px);
+      --fs-md: clamp(14px, 2.6vw, 22px);
+
+      --space-lg: clamp(12px, 3vw, 26px);
+      --space-md: clamp(10px, 2.4vw, 20px);
+      --space-sm: clamp(6px, 1.8vw, 14px);
+      --control-h: clamp(48px, 9vh, 68px);
+      --chip-h: clamp(40px, 8vh, 56px);
     }
 
     * { box-sizing: border-box; }
@@ -41,19 +44,25 @@
 
     .app {
       width: min(1200px, 96vw);
-      height: min(740px, 92vh);
-      display: grid; grid-template-rows: auto 1fr auto; gap: var(--space-lg);
-      background: #12152a;
+      height: min(760px, 92vh);
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: var(--space-lg);
+      background: #0e1023;
       border: 1px solid rgba(255,255,255,0.08);
       border-radius: var(--radius);
-      padding: clamp(12px, 2.5vw, 24px);
+      padding: clamp(12px, 2.5vw, 28px);
     }
 
     header { display:flex; align-items:center; justify-content:space-between; gap:var(--space-md); }
     .title { font-size: var(--fs-xl); font-weight: 800; letter-spacing: 0.3px; display:flex; gap:10px; align-items:center; }
-    .dot { width:0.75em; height:0.75em; border-radius:50%; background: var(--left-accent); box-shadow:0 0 12px var(--left-accent); }
+    .dot { width:0.9em; height:0.9em; border-radius:50%; background: var(--left-accent); box-shadow:0 0 14px var(--left-accent); }
 
-    .btn, button { cursor:pointer; background: var(--btn); color: var(--text); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:0 14px; height: var(--chip-h); font-size: var(--fs-md); }
+    .btn, button {
+      cursor:pointer; background: var(--btn); color: var(--text);
+      border:1px solid rgba(255,255,255,0.1);
+      border-radius:12px; padding:0 16px; height: var(--chip-h); font-size: var(--fs-md);
+    }
     .btn:hover { background: var(--btn-hover); }
     .btn[disabled]{ opacity:.5; cursor:not-allowed; }
     .btn.warn { background:#40222a; border-color:#ff6b6b55; }
@@ -61,32 +70,87 @@
     main { display:grid; grid-template-columns: 1fr 8px 1fr; gap: var(--space-lg); align-items: stretch; }
     .divider { background: rgba(255,255,255,0.18); border-radius: 999px; }
 
-    .board { position:relative; background:#181c34; border:1px solid rgba(255,255,255,0.08); border-radius: var(--radius); padding: clamp(10px, 2vw, 20px); display:grid; grid-template-rows: auto 1fr auto; gap:var(--space-md); }
-    .board.teamA { box-shadow: inset 0 0 0 2px rgba(76,201,240,0.25); }
-    .board.teamB { box-shadow: inset 0 0 0 2px rgba(255,107,107,0.25); }
-    .board.serving.teamA { outline: 2px solid rgba(76,201,240,0.7); }
-    .board.serving.teamB { outline: 2px solid rgba(255,107,107,0.7); }
+    .board {
+      position:relative;
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius: var(--radius);
+      padding: clamp(12px, 2.4vw, 22px);
+      display:grid; grid-template-rows: auto 1fr auto;
+      gap:var(--space-md);
+    }
+    /* Distinct tinted backgrounds per team */
+    .board.teamA {
+      background: linear-gradient(180deg, rgba(76,201,240,0.18), rgba(76,201,240,0.07));
+      box-shadow: inset 0 0 0 2px rgba(76,201,240,0.38);
+    }
+    .board.teamB {
+      background: linear-gradient(180deg, rgba(255,107,107,0.18), rgba(255,107,107,0.07));
+      box-shadow: inset 0 0 0 2px rgba(255,107,107,0.38);
+    }
+    .board.serving.teamA { outline: 3px solid rgba(76,201,240,0.85); }
+    .board.serving.teamB { outline: 3px solid rgba(255,107,107,0.85); }
 
-    .team { display:grid; grid-template-columns: 1fr auto auto; gap: var(--space-sm); align-items:center; }
-    .team input[type=text]{ background:#0f1330; color:var(--text); border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:0 12px; height: var(--control-h); font-size: var(--fs-lg); font-weight:700; }
+    .team { display:grid; grid-template-columns: 1fr auto; gap: var(--space-sm); align-items:center; }
+    .team input[type=text]{
+      background:#0f1330; color:var(--text);
+      border:1px solid rgba(255,255,255,0.15);
+      border-radius:10px; padding:0 12px; height: var(--control-h);
+      font-size: var(--fs-lg); font-weight:700;
+    }
 
-    .serve-indicator { width: var(--control-h); height: var(--control-h); border-radius: 999px; display:grid; place-items:center; border:1px solid rgba(255,255,255,0.2); background:#161b36; color:#fff; }
+    .serve-indicator {
+      width: var(--control-h); height: var(--control-h);
+      border-radius: 999px; display:grid; place-items:center;
+      border:1px solid rgba(255,255,255,0.2);
+      background:#161b36; color:#fff;
+    }
     .serve-indicator[hidden]{ display:none; }
 
-    .score { display:grid; place-items:center; font-size: var(--fs-xxl); font-weight: 900; padding: var(--space-md) 0; }
+    .score {
+      display:grid; place-items:center;
+      font-size: var(--fs-giant);
+      font-weight: 900; padding: var(--space-md) 0; line-height:1;
+    }
 
-    .actions { display:grid; grid-template-columns: repeat(4,1fr); gap: var(--space-sm); }
-    .quickset { display:grid; grid-template-columns: 1fr auto; gap: var(--space-sm); }
-    .quickset input[type=number]{ background:#0f1330; color:var(--text); border:1px solid rgba(255,255,255,0.15); border-radius:10px; padding:0 12px; height: var(--control-h); font-size: var(--fs-md); }
-
-    .board.winner::after { content: 'WINNER'; position:absolute; top:10px; right:-40px; transform: rotate(35deg); background:#16a34a; color:#fff; padding:8px 60px; font-weight:900; letter-spacing:2px; }
+    .actions { display:grid; grid-template-columns: repeat(2,1fr); gap: var(--space-sm); }
 
     footer { display:flex; justify-content:space-between; align-items:center; gap:var(--space-md); color: var(--muted); font-size: var(--fs-md); }
-
-    .status { display:inline-grid; grid-auto-flow: column; align-items:center; gap:10px; padding:0 12px; height: var(--chip-h); border:1px solid rgba(255,255,255,0.15); border-radius:10px; background:#12162d; color:#e0e6ff; }
+    .status {
+      display:inline-grid; grid-auto-flow: column; align-items:center; gap:10px;
+      padding:0 12px; height: var(--chip-h);
+      border:1px solid rgba(255,255,255,0.15);
+      border-radius:10px; background:#12162d; color:#e0e6ff;
+    }
     .ball { width:14px; height:14px; border-radius:50%; background:#fff; }
     .status.left .ball { background: var(--left-accent); }
     .status.right .ball { background: var(--right-accent); }
+
+    /* Confetti */
+    .confetti { position: fixed; inset: 0; pointer-events: none; overflow: hidden; }
+    .confetti .piece {
+      position: absolute; width: 10px; height: 16px; opacity: 0.9;
+      transform: translateY(-120%); animation: fall linear forwards;
+    }
+    @keyframes fall { to { transform: translateY(120vh) rotate(720deg); } }
+
+    /* Winner ribbon (when a team reaches 21) */
+    .board.winner::after{
+      content: "WINNER";
+      position: absolute;
+      top: 10px; right: -40px;
+      transform: rotate(35deg);
+      background: #16a34a; color: white;
+      padding: 8px 60px; font-weight: 900; letter-spacing: 2px;
+      border: 1px solid rgba(255,255,255,0.18);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.35);
+    }
+
+    /* Total=21 flash */
+    .flash { animation: flash 1.1s ease-in-out 3; }
+    @keyframes flash {
+      0%,100%{ filter: drop-shadow(0 0 0 rgba(255,255,255,0)); }
+      50%{ filter: drop-shadow(0 0 22px rgba(255,255,255,0.8)); }
+    }
 
     @media (max-aspect-ratio: 1/1){
       .app { height:auto; min-height:100dvh; }
@@ -100,7 +164,7 @@
     <header>
       <div class="title"><span class="dot" aria-hidden="true"></span> Americano Scoreboard</div>
       <div class="controls">
-        <button id="swap" class="btn" title="Swap teams">🔁 Swap</button>
+        <!-- Swap removed -->
         <button id="reset" class="btn warn" title="Reset all">♻️ Reset</button>
         <button id="clearStorage" class="btn" title="Clear saved data">🗑 Clear Save</button>
       </div>
@@ -110,19 +174,12 @@
       <section class="board teamA" id="boardA" aria-labelledby="teamA-label">
         <div class="team teamA">
           <input id="teamA-name" type="text" value="Team A" aria-label="Team A name" />
-          <button id="teamA-saveName" class="btn" title="Save team name">💾</button>
           <div id="serveA" class="serve-indicator" title="Serving" aria-label="Serving" hidden>🎾</div>
         </div>
         <div class="score" id="teamA-score" aria-live="polite">0</div>
         <div class="actions">
-          <button data-team="A" data-delta="-5" class="btn">−5</button>
           <button data-team="A" data-delta="-1" class="btn">−1</button>
           <button data-team="A" data-delta="+1" class="btn">+1</button>
-          <button data-team="A" data-delta="+5" class="btn">+5</button>
-        </div>
-        <div class="quickset">
-          <input id="teamA-set" type="number" inputmode="numeric" placeholder="Set score…" />
-          <button id="teamA-apply" class="btn">Set</button>
         </div>
       </section>
 
@@ -131,19 +188,12 @@
       <section class="board teamB" id="boardB" aria-labelledby="teamB-label">
         <div class="team teamB">
           <input id="teamB-name" type="text" value="Team B" aria-label="Team B name" />
-          <button id="teamB-saveName" class="btn" title="Save team name">💾</button>
           <div id="serveB" class="serve-indicator" title="Serving" aria-label="Serving" hidden>🎾</div>
         </div>
         <div class="score" id="teamB-score" aria-live="polite">0</div>
         <div class="actions">
-          <button data-team="B" data-delta="-5" class="btn">−5</button>
           <button data-team="B" data-delta="-1" class="btn">−1</button>
           <button data-team="B" data-delta="+1" class="btn">+1</button>
-          <button data-team="B" data-delta="+5" class="btn">+5</button>
-        </div>
-        <div class="quickset">
-          <input id="teamB-set" type="number" inputmode="numeric" placeholder="Set score…" />
-          <button id="teamB-apply" class="btn">Set</button>
         </div>
       </section>
     </main>
@@ -156,40 +206,44 @@
     </footer>
   </div>
 
+  <div id="confetti" class="confetti" aria-hidden="true"></div>
+
+  <!-- Audio: tiny embedded MP3 chime for total=21 -->
+  <audio id="total21Sound" preload="auto"><source id="total21Src" type="audio/mp3" /></audio>
+
   <script>
     (function(){
-      const TARGET_POINTS = 21;        // First to 21 wins
+      const TARGET_POINTS = 21;        // First to 21 for a team (shows WINNER ribbon)
       const SERVE_INTERVAL = 5;        // Switch serve every 5 total points
-      const STORAGE_KEY = 'americano_scoreboard_v1';
+      const STORAGE_KEY = 'americano_scoreboard_index_v1';
 
       const els = {
         boardA: document.getElementById('boardA'),
         boardB: document.getElementById('boardB'),
         aName: document.getElementById('teamA-name'),
         bName: document.getElementById('teamB-name'),
-        aSave: document.getElementById('teamA-saveName'),
-        bSave: document.getElementById('teamB-saveName'),
         aScore: document.getElementById('teamA-score'),
         bScore: document.getElementById('teamB-score'),
-        aSet: document.getElementById('teamA-set'),
-        bSet: document.getElementById('teamB-set'),
-        aApply: document.getElementById('teamA-apply'),
-        bApply: document.getElementById('teamB-apply'),
         serveA: document.getElementById('serveA'),
         serveB: document.getElementById('serveB'),
-        swap: document.getElementById('swap'),
         reset: document.getElementById('reset'),
         clear: document.getElementById('clearStorage'),
         status: document.getElementById('statusServe'),
         statusText: document.getElementById('statusText'),
         buttons: Array.from(document.querySelectorAll('.actions button')),
+        confetti: document.getElementById('confetti'),
+        total21Sound: document.getElementById('total21Sound'),
+        total21Src: document.getElementById('total21Src')
       };
 
-      // State
+      // Small inline mp3 beep (you can swap this with your own hosted URL)
+      const base64Mp3 = 'data:audio/mp3;base64,SUQzAwAAAAAAQ1RTU0IAAAABAAACAAACU0VDAAAAAAAAPAAAAP//AACQAAACAAACAAAAAABJbmZvAAAADAAAAG1hdHQtaG9sbHkAAAAAAABUQU0AAAACAAAAAQAAABRkYXRhAAAAAAAUAAAAP//AACQAAACAAACAAAAAAA=';
+
       let state = {
         teamA: { name: 'Team A', score: 0 },
         teamB: { name: 'Team B', score: 0 },
-        gameOver: false
+        gameOver: false,
+        lastCelebratedTotal: -1
       };
 
       function load(){
@@ -198,40 +252,40 @@
           if(raw){
             const parsed = JSON.parse(raw);
             if(parsed && parsed.teamA && parsed.teamB){
-              state = Object.assign({gameOver:false}, parsed);
+              state = Object.assign({gameOver:false,lastCelebratedTotal:-1}, parsed);
             }
           }
-        } catch(e){ /* ignore */ }
+        } catch(e){}
+        // Prepare audio
+        try { els.total21Src.src = base64Mp3; els.total21Sound.load(); } catch(e){}
         render();
       }
-
-      function save(){
-        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
-        catch(e){ /* ignore */ }
-      }
-
-      function clampScore(v){
-        if(!Number.isFinite(v)) return 0;
-        return Math.max(0, Math.min(9999, Math.round(v)));
-      }
-
+      function save(){ try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e){} }
+      function clampScore(v){ if(!Number.isFinite(v)) return 0; return Math.max(0, Math.min(9999, Math.round(v))); }
       function getTotal(){ return (state.teamA.score|0) + (state.teamB.score|0); }
+      function getServeSide(){ const rotations = Math.floor(getTotal() / SERVE_INTERVAL); return (rotations % 2 === 0) ? 'A' : 'B'; }
+      function checkWinner(){ if(state.teamA.score >= TARGET_POINTS || state.teamB.score >= TARGET_POINTS){ state.gameOver = true; return true; } return false; }
+      function setDisabledForScoring(disabled){ els.buttons.forEach(b => b.disabled = disabled); }
+      function playTotal21(){ try { const p = els.total21Sound.play(); if(p && typeof p.then === 'function'){ p.catch(()=>{}); } } catch(e){} }
 
-      function getServeSide(){
-        const rotations = Math.floor(getTotal() / SERVE_INTERVAL);
-        return (rotations % 2 === 0) ? 'A' : 'B';
-      }
-
-      function checkWinner(){
-        if(state.teamA.score >= TARGET_POINTS || state.teamB.score >= TARGET_POINTS){
-          state.gameOver = true; return true;
+      function celebrateTotal(){
+        const total = getTotal();
+        if(total !== 21 || state.lastCelebratedTotal === 21) return;
+        state.lastCelebratedTotal = 21;
+        playTotal21();
+        const colors = ['#4cc9f0','#ff6b6b','#ffe066','#69db7c','#b197fc'];
+        const pieces = 80;
+        els.confetti.innerHTML = '';
+        for(let i=0;i<pieces;i++){
+          const d = document.createElement('div'); d.className = 'piece';
+          d.style.left = Math.random()*100 + 'vw';
+          d.style.background = colors[i % colors.length];
+          d.style.animationDuration = (1.5 + Math.random()*1.2) + 's';
+          d.style.transform = `translateY(-120%) rotate(${Math.random()*360}deg)`;
+          els.confetti.appendChild(d);
         }
-        return false;
-      }
-
-      function setDisabledForScoring(disabled){
-        els.buttons.forEach(b => b.disabled = disabled);
-        els.aApply.disabled = disabled; els.bApply.disabled = disabled;
+        els.boardA.classList.add('flash'); els.boardB.classList.add('flash');
+        setTimeout(()=>{ els.boardA.classList.remove('flash'); els.boardB.classList.remove('flash'); els.confetti.innerHTML = ''; }, 2200);
       }
 
       function render(){
@@ -239,21 +293,24 @@
         els.aScore.textContent = state.teamA.score; els.bScore.textContent = state.teamB.score;
         document.title = `${state.teamA.name} ${state.teamA.score} – ${state.teamB.score} ${state.teamB.name}`;
 
-        const serve = getServeSide();
-        const total = getTotal();
-        els.serveA.hidden = !(serve === 'A');
-        els.serveB.hidden = !(serve === 'B');
-        els.boardA.classList.toggle('serving', serve === 'A');
-        els.boardB.classList.toggle('serving', serve === 'B');
+        const serve = getServeSide(); const total = getTotal();
+        els.serveA.hidden = !(serve === 'A'); els.serveB.hidden = !(serve === 'B');
+        els.boardA.classList.toggle('serving', serve === 'A'); els.boardB.classList.toggle('serving', serve === 'B');
+
         els.statusText.textContent = `Total: ${total} · Serving: ${serve === 'A' ? state.teamA.name : state.teamB.name}`;
         els.status.classList.toggle('left', serve === 'A');
         els.status.classList.toggle('right', serve === 'B');
 
+        // Winner ribbon on team reaching TARGET_POINTS
         const aWins = state.teamA.score >= TARGET_POINTS;
         const bWins = state.teamB.score >= TARGET_POINTS;
         els.boardA.classList.toggle('winner', aWins);
         els.boardB.classList.toggle('winner', bWins);
+
         setDisabledForScoring(state.gameOver);
+
+        // Celebrate combined total == 21
+        celebrateTotal();
       }
 
       function delta(team, amount){
@@ -264,37 +321,24 @@
         save(); render();
       }
 
-      function setScore(team, value){
-        if(state.gameOver) return;
-        const key = team === 'A' ? 'teamA' : 'teamB';
-        state[key].score = clampScore(value);
-        if(checkWinner()){ save(); render(); return; }
+      function resetAll(){
+        state.teamA.score = 0; state.teamB.score = 0; state.gameOver = false; state.lastCelebratedTotal = -1;
         save(); render();
       }
 
-      function resetAll(){
-        state.teamA.score = 0; state.teamB.score = 0; state.gameOver = false; save(); render();
-      }
-
-      function swapTeams(){
-        const tmp = JSON.parse(JSON.stringify(state.teamA));
-        state.teamA = JSON.parse(JSON.stringify(state.teamB));
-        state.teamB = tmp; save(); render();
-      }
-
-      // Handlers
-      els.buttons.forEach(btn => {
+      // Bind buttons and inputs
+      document.querySelectorAll('.actions button').forEach(btn => {
         const team = btn.getAttribute('data-team');
         const deltaVal = Number(btn.getAttribute('data-delta'));
         btn.addEventListener('click', () => delta(team, deltaVal));
       });
-      els.aApply.addEventListener('click', () => setScore('A', Number(els.aSet.value)));
-      els.bApply.addEventListener('click', () => setScore('B', Number(els.bSet.value)));
-      els.aSave.addEventListener('click', () => { state.teamA.name = els.aName.value.trim() || 'Team A'; save(); render(); });
-      els.bSave.addEventListener('click', () => { state.teamB.name = els.bName.value.trim() || 'Team B'; save(); render(); });
-      document.getElementById('reset').addEventListener('click', resetAll);
-      document.getElementById('swap').addEventListener('click', swapTeams);
-      document.getElementById('clearStorage').addEventListener('click', () => { localStorage.removeItem(STORAGE_KEY); load(); });
+
+      // Save names on change
+      els.aName.addEventListener('change', ()=>{ state.teamA.name = els.aName.value.trim() || 'Team A'; save(); render(); });
+      els.bName.addEventListener('change', ()=>{ state.teamB.name = els.bName.value.trim() || 'Team B'; save(); render(); });
+
+      els.reset.addEventListener('click', resetAll);
+      els.clear.addEventListener('click', () => { localStorage.removeItem(STORAGE_KEY); load(); });
 
       // Keyboard shortcuts
       window.addEventListener('keydown', (e) => {
@@ -313,3 +357,4 @@
   </script>
 </body>
 </html>
+``
