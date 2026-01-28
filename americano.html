@@ -287,7 +287,7 @@
         teamB: { name: 'Team B', score: 0 },
         gameOver: false,
         lastCelebratedTotal: -1,
-        manualServe: null  // 'A' or 'B' when manually set; null = auto
+        serveParityOffset: 0 // NEW: 0 or 1; flips auto rotation starting side
       };
 
       // --- Branding: use initials if logo not found ---
@@ -307,7 +307,7 @@
           if(raw){
             const parsed = JSON.parse(raw);
             if(parsed && parsed.teamA && parsed.teamB){
-              state = Object.assign({gameOver:false,lastCelebratedTotal:-1,manualServe:null}, parsed);
+              state = Object.assign({gameOver:false,lastCelebratedTotal:-1,serveParityOffset:0}, parsed);
             }
           }
         } catch(e){}
@@ -317,8 +317,16 @@
       function save(){ try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e){} }
       function clampScore(v){ if(!Number.isFinite(v)) return 0; return Math.max(0, Math.min(9999, Math.round(v))); }
       function getTotal(){ return (state.teamA.score|0) + (state.teamB.score|0); }
-      function getAutoServe(){ const rotations = Math.floor(getTotal() / SERVE_INTERVAL); return (rotations % 2 === 0) ? 'A' : 'B'; }
-      function getServe(){ return state.manualServe || getAutoServe(); }
+      
+      
+function getAutoServe(){
+  const rotations = Math.floor(getTotal() / SERVE_INTERVAL);
+  // Apply offset so a manual click flips starting side but auto keeps working
+  return ((rotations + (state.serveParityOffset|0)) % 2 === 0) ? 'A' : 'B';
+}
+function getServe(){ return getAutoServe(); }  // always auto with offset
+
+      
       function checkWinner(){ if(state.teamA.score >= TARGET_POINTS || state.teamB.score >= TARGET_POINTS){ state.gameOver = true; return true; } return false; }
       function setDisabledForScoring(disabled){ els.buttons.forEach(b => b.disabled = disabled); }
       function playTotal21(){ try { const p = els.total21Sound.play(); if(p && typeof p.then === 'function'){ p.catch(()=>{}); } } catch(e){} }
@@ -371,15 +379,20 @@
       }
 
       function resetAll(){
-        state.teamA.score = 0; state.teamB.score = 0;
-        state.gameOver = false; state.lastCelebratedTotal = -1; state.manualServe = null;
-        save(); render();
+        
+tate.teamA.score = 0; state.teamB.score = 0;
+  state.gameOver = false; state.lastCelebratedTotal = -1;
+  state.serveParityOffset = 0;   // reset offset on reset
+  save(); render();
+
       }
 
       function toggleServe(){
-        const current = getServe();
-        state.manualServe = (current === 'A') ? 'B' : 'A';
-        save(); render();
+
+  // Flip parity; auto logic continues (every 5 points), starting from opposite side
+  state.serveParityOffset = (state.serveParityOffset ^ 1);
+  save(); render();
+
       }
 
       // Bind buttons
